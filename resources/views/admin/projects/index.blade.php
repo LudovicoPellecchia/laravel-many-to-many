@@ -16,9 +16,18 @@
                 <img src={{asset('/storage/' . $singleProject->immagine)}} class="card-img-top">
                 <div class="card-body">
                     <h5 class="card-title">{{$singleProject->titolo}}</h5>
+
                     <p class="card-text">{{substr($singleProject->descrizione, 0, 150)}}...</p>
+
                     <h5 class="text-center">{{$singleProject->link_github}}</h5>
+
                     <h6>{{$singleProject->type->name}}</h6>
+
+{{--                     <div class="mb-2 mt-2">
+                        @foreach ($singleProject->technologies as $technology )
+                        <p class="card-text" style="background-color: hsl(240, 79%, 84%); padding:5px; border-radius:5px">{{$technology->nome}}</p>
+                        @endforeach
+                    </div> --}}
 
                     <div class="d-flex justify-content-between">
                         <div><a href="{{route("admin.projects.edit", $singleProject->slug)}}">
@@ -27,10 +36,10 @@
                             </button>
                             </a>
                         </div>
+
                         <form action="{{route('admin.projects.destroy', $singleProject->slug)}}" method="POST">
                             @csrf()
                             @method("DELETE")
-
                             <button class="btn btn-danger">Elimina</button>
                         </form>
 

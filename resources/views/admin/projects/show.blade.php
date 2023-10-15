@@ -10,6 +10,11 @@
             <h5 class="card-title">{{$show_project->titolo}}</h5>
             <p class="card-text">{{$show_project->descrizione}}</p>
             <p class="card-text">{{$show_project->type->name}}</p>
+            <div >
+                @foreach ($show_project->technologies as $technology )
+                <p class="card-text" style="background-color: hsl(240, 79%, 84%); padding:5px; border-radius:5px">{{$technology?->nome}}</p>
+                @endforeach
+            </div>
             <div class="text-end fs-4"><a href="{{route('admin.projects.edit', $show_project->slug)}}">Modifica</a></div>
 
             <form action="{{route('admin.projects.destroy', $show_project->slug)}}" method="POST">

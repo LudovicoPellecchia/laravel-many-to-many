@@ -34,6 +34,8 @@ class UpdateProjectRequest extends FormRequest
             "descrizione"=>"required",
             "link_github"=>"nullable",
             "immagine"=>"nullable",
+            "type_id"=>"nullable",
+            "technologies"=>"nullable"   
             //
         ];
     }

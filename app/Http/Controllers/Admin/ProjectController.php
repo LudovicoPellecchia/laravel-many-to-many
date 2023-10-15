@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use App\Models\Technology;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -26,6 +27,7 @@ class ProjectController extends Controller
     public function show($slug){
         //recupero il primo progetto nel db che ha quello specifico slug 
         $show_project = Project::where("slug", $slug)->first();
+
         return view("admin.projects.show", compact("show_project"));
     }
 
@@ -35,8 +37,9 @@ class ProjectController extends Controller
 
     public function create(){
         $types = Type::all();
+        $technologies = Technology::all();
 
-        return view("admin.projects.create", compact("types"));
+        return view("admin.projects.create", compact("types", "technologies"));
     }
 
 
@@ -51,6 +54,13 @@ class ProjectController extends Controller
         $data["immagine"] = Storage::put("projects", $data["immagine"]);
         //eseguo fill dei campi dell'istanza (è necessaria la variabile fillable nel Model con tutti i campi), e la salvo nel db
         $newProject = Project::create($data);
+        //dopo aver salvato la nuova istanza del model Project utilizzo il metodo technologies con cui accedo alla tabella
+        // ponte tra projects e techonologies e assegno i dati "technologies" alla nuova istanza "newProject" 
+        
+        if($request->technologies){
+            $newProject->technologies()->attach($data["technologies"]);
+        }
+
         return redirect()->route("admin.projects.show", $newProject->slug);
     }
 
@@ -58,9 +68,12 @@ class ProjectController extends Controller
 
 
     public function edit($slug){
+        $types = Type::all();
+        $technologies = Technology::all();
+
         $project = Project::where("slug", $slug)->firstOrFail();
         //ritorno la view con il form per modificare i dati del singolo progetto
-        return view('admin.projects.edit', compact('project'));
+        return view('admin.projects.edit', compact('project', 'types', 'technologies'));
     }
 
 
@@ -78,9 +91,15 @@ class ProjectController extends Controller
         //se la request al FormRequest ha un file immagine, prende file img dal frontend, lo rinomina e lo salva in una cartella nello storage
         if ($request->hasFile('immagine')) {
             $data["immagine"] = Storage::put("projects", $data["immagine"]);
+                    //elimino la precedente immagine dal db
+                    Storage::delete($project->immagine);
         }
-        //elimino la precedente immagine dal db
-        Storage::delete($project->immagine);
+
+        if($request->technologies){
+            $project->technologies()->sync($data['technologies']);
+        }
+
+
         //aggiorno e salvo i nuovi dati nel database
         $project->update($data);
         return redirect()->route("admin.projects.show", $project->slug);
@@ -96,6 +115,8 @@ class ProjectController extends Controller
         if ($project->immagine) {
             Storage::delete($project->immagine);
         }
+        //elimino i collegamenti con la tabella ponte
+        $project->technologies()->detach();
         //lo elimino
         $project->delete();
         //redirect all'index con la lista dei progetti
