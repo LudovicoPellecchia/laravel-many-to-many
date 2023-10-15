@@ -95,9 +95,12 @@ class ProjectController extends Controller
                     Storage::delete($project->immagine);
         }
 
-        if($request->technologies){
+        //se data['technologies] è diverso da na
+        if (isset($data['technologies'])) {
             $project->technologies()->sync($data['technologies']);
-        }
+        }else{
+            $project->technologies()->detach();
+        }        
 
 
         //aggiorno e salvo i nuovi dati nel database
